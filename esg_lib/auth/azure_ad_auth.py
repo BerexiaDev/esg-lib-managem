@@ -65,25 +65,37 @@ class AzureADAuth:
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
         return rsa_key_pem
+
+    @classmethod
+    def get_key(cls, kid):
+        def find_key():
+            return next((key for key in cls._instance.keys if key["kid"] == kid), None)
+        
+        key = find_key()
+        if key:
+            return key
+
+        cls._instance.keys = cls._instance.fetch_public_keys()
+        key = find_key()
+        if key:
+            return key
+
+        raise Exception("RSA key not found")
+    
     
     @classmethod
     def get_rsa_key(cls, token):
-        cls.create_instance()
-
         if not cls._instance.keys:
             raise Exception("RSA keys not available")
         
         headers = jwt.get_unverified_header(token)
         try:
-            for key in cls._instance.keys:
-                if key["kid"] == headers["kid"]:
-                    rsa_key = cls._instance.construct_rsa_pem(key)
-                    return rsa_key
-            raise Exception("RSA key not found")
-
+            key = cls.get_key(headers["kid"])
+            return cls._instance.construct_rsa_pem(key)
         except Exception as e:
             traceback.print_exc()
             raise Exception(f"Failed to get RSA key: {str(e)}")
+        
 
     def get_token_auth_header(self):
         auth = request.headers.get("Authorization", None)
@@ -107,7 +119,6 @@ class AzureADAuth:
     @classmethod
     def decode_token(cls):
         cls.create_instance()
-
         token = cls._instance.get_token_auth_header()
         rsa_key = cls._instance.get_rsa_key(token)
         try:

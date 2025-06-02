@@ -21,7 +21,7 @@ PRIMARY_KEY_MAPPING = {
     "entity_domaines": "h1"
 }
 AUDIT_COLLECTION_NAME = "audit"
-
+IGNORED_TERMS = ["swagger","search"]
 
 class AuditBlueprint(Blueprint):
     """
@@ -41,7 +41,7 @@ class AuditBlueprint(Blueprint):
         table_name = g.get("table_name")
         endpoint = request.path
 
-        if not table_name or table_name == AUDIT_COLLECTION_NAME or endpoint in IGNORE_PATHS or "swagger" in endpoint:
+        if not table_name or table_name == AUDIT_COLLECTION_NAME or endpoint in IGNORE_PATHS or any(term in endpoint for term in IGNORED_TERMS):
             return response
 
         primary_key = PRIMARY_KEY_MAPPING.get(table_name, "name")
