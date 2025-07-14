@@ -11,6 +11,7 @@ setup(
         "cryptography==42.0.8",
         "python-dotenv==0.21.1",
         "PyJWT==2.8.0",
+        "minio==7.2.7"
     ],
     description='ESG Global Library',
     long_description=open('README.md').read(),
