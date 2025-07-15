@@ -86,11 +86,14 @@ class AzureADAuth:
     @classmethod
     def get_rsa_key(cls, token):
         if not cls._instance.keys:
+            print("RSA Keys not available, fetching...")
             raise Exception("RSA keys not available")
         
         headers = jwt.get_unverified_header(token)
+        print(f"Token headers: {headers}")
         try:
             key = cls.get_key(headers["kid"])
+            print(f"Found key: {key}")
             return cls._instance.construct_rsa_pem(key)
         except Exception as e:
             traceback.print_exc()
@@ -120,7 +123,9 @@ class AzureADAuth:
     def decode_token(cls):
         cls.create_instance()
         token = cls._instance.get_token_auth_header()
+        print(f"Decoding token: {token}")
         rsa_key = cls._instance.get_rsa_key(token)
+        print(f"RSA key: {rsa_key}")
         try:
             decoded_token = jwt.decode(
                 token,
@@ -129,10 +134,15 @@ class AzureADAuth:
                 audience=cls._instance.client_id,  
                 issuer=f"{cls._instance.authority}/v2.0"  
             )
+
+            print(f"Decoded token: {decoded_token}")
             return decoded_token
         except jwt.ExpiredSignatureError:
+            traceback.print_exc()
             raise Exception("Token has expired")
         except jwt.InvalidTokenError as e:
+            traceback.print_exc()
             raise Exception(f"Invalid token: {str(e)}")
         except Exception as e:
+            traceback.print_exc()
             raise Exception(f"Unable to parse token: {str(e)}")
