@@ -7,10 +7,12 @@ from esg_lib.auth.auth_helper import AuthHelper
 from esg_lib.common import UserRole
 from werkzeug.datastructures import ImmutableMultiDict
 
+import traceback
 
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print("REQUEST PATH:", request.path)
         if request.path in IGNORE_PATHS or "swagger" in request.path:
             return f(*args, **kwargs)
         try:
@@ -60,6 +62,7 @@ def token_required(f):
                         return {"status": "fail", "message": "Access denied."}, 403
 
         except Exception as e:
+            traceback.print_exc()
             return {"status": "fail", "message": str(e)}, 401
 
         return f(*args, **kwargs)
