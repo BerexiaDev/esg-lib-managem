@@ -18,7 +18,10 @@ PRIMARY_KEY_MAPPING = {
     "notifications": "content",
     "users": "email",
     "ref_sectors": "label",
-    "entity_domaines": "h1"
+    "entity_domaines": "h1",
+    "projects": "title",
+    "permanent_actions": "title",
+    "highlighted_actions": "key_events_20xx"
 }
 AUDIT_COLLECTION_NAME = "audit"
 IGNORED_TERMS = ["swagger","search"]
