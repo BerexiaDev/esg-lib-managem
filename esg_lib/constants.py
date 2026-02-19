@@ -1,1 +1,1 @@
-IGNORE_PATHS = ["/", "/swagger.json"]
+IGNORE_PATHS = ["/", "/swagger.json", "/dynamic-pages"]
