@@ -11,7 +11,14 @@ from werkzeug.datastructures import ImmutableMultiDict
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if request.path in IGNORE_PATHS or "swagger" in request.path:
+        ignored_exact = request.path in IGNORE_PATHS
+        ignored_by_prefix = any(
+            ignored_path != "/"
+            and ignored_path.endswith("/")
+            and request.path.startswith(ignored_path)
+            for ignored_path in IGNORE_PATHS
+        )
+        if ignored_exact or ignored_by_prefix or "swagger" in request.path:
             return f(*args, **kwargs)
         try:
             # To validate external users token
