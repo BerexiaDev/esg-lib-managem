@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import request, g
 from esg_lib.auth.external_auth import ExternalAuth
-from esg_lib.constants import IGNORE_PATHS
+from esg_lib.constants import IGNORE_PATHS, IGNORE_PREFIXES
 from esg_lib.auth.azure_ad_auth import AzureADAuth
 from esg_lib.auth.auth_helper import AuthHelper
 from esg_lib.common import UserRole
@@ -12,13 +12,7 @@ def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         ignored_exact = request.path in IGNORE_PATHS
-        ignored_by_prefix = any(
-            ignored_path != "/"
-            and ignored_path.endswith("/")
-            and request.path.startswith(ignored_path)
-            for ignored_path in IGNORE_PATHS
-        )
-        if ignored_exact or ignored_by_prefix or "swagger" in request.path:
+        if ignored_exact or any(request.path.startswith(p) for p in IGNORE_PREFIXES) or "swagger" in request.path:
             return f(*args, **kwargs)
         try:
             # To validate external users token
