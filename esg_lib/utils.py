@@ -1,4 +1,6 @@
 import uuid
+from __future__ import annotations
+from flask.wrappers import Response
 
 
 def generate_id():
@@ -237,3 +239,18 @@ def load_entities(data, collection):
             entity_dict.get(entity_id) for entity_id in doc.entities or []
         ]
     return data
+
+
+def set_cache_control_public(response: Response, max_age: int = 1800) -> Response:
+    """Set a public cache-control header on a response."""
+
+    response.headers["Cache-Control"] = f"public, max-age={max_age}"
+    return response
+
+
+def set_cache_control_no_cache(response: Response) -> Response:
+    """Set no-cache related headers on a response."""
+
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    return response
